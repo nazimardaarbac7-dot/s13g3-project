@@ -25,6 +25,7 @@
 //2- Server setup
 const express = require('express');
 const server = express();
+require('dotenv').config()
 
 const path = require('path');
 server.use(express.json());
@@ -35,19 +36,19 @@ const hobbitsRouter = require("./api/hobbits/hobbits-router");
 const racesRouter = require("./api/races/races-router");
 
 // global middleware'lerimiz
-function getLog(req,res, next) {
+function getLog(req, res, next) {
     /* console.log(
         `${new Date} --- ${req.url}   ---- ${req.ip}`
     ) */
     console.log("Parola'yı söyle:")
     next();
 }
-function isAuthUser(req,res,next) {
-    if(isAuthenticated){
+function isAuthUser(req, res, next) {
+    if (isAuthenticated) {
         next();
     } else {
         //res.status(403).send("<h1>Giremezsin!!! Önce Login olmanız lazım</h1>");
-        next({message: "Giremezsin!!! Önce Login olmanız lazım"})
+        next({ message: "Giremezsin!!! Önce Login olmanız lazım" })
     }
 }
 
@@ -55,9 +56,9 @@ server.use(getLog);
 
 
 //3- Routing örneği
-server.get("/", (req,res)=> {
-    res.status(200).json({statusCode: 200, message: "Hey, server is up and running..."});
-} )
+server.get("/", (req, res) => {
+    res.status(200).json({ statusCode: 200, message: process.env.message|| "Hey, server is up and running..." });
+})
 
 /*
  Bir challenge: 
@@ -65,18 +66,18 @@ server.get("/", (req,res)=> {
   /hobbits    auth ile doğru parola ile giriş yaptı ise hobbitleri geri dönsün. yoksa ekranda hata mesajı versin.
 */
 let isAuthenticated = false;
-server.get("/auth", (req,res)=>{
-        const parola = req.query.parola;
-        console.log("Parola: " + parola)
-        if (parola === 'fsweb1122'){
-            console.log("Hoş geldin!..")
-            res.status(200).send("<h1>Hoş geldiniz</h1>");
-            isAuthenticated = true;
-        } else {
-            console.log("Yanlış parola. Giremezsin...")
-            res.status(403).send("<h1>Giremezsin!!! Yanlış bilgileri kullandın.</h1>");
-        }
+server.get("/auth", (req, res) => {
+    const parola = req.query.parola;
+    console.log("Parola: " + parola)
+    if (parola === 'fsweb1122') {
+        console.log("Hoş geldin!..")
+        res.status(200).send("<h1>Hoş geldiniz</h1>");
+        isAuthenticated = true;
+    } else {
+        console.log("Yanlış parola. Giremezsin...")
+        res.status(403).send("<h1>Giremezsin!!! Yanlış bilgileri kullandın.</h1>");
     }
+}
 )
 
 
@@ -88,9 +89,9 @@ server.use("/races", racesRouter);
 // Error middleware testi için bir örnek
 server.get('/download', (req, res, next) => {
     const filePath = path.join(__dirname, 'index.html');
-    res.sendFile(filePath, err=> {
-        if(err) {
-            next({message: "hata oluştu"});  //Error middleware'e yönlendirdik
+    res.sendFile(filePath, err => {
+        if (err) {
+            next({ message: "hata oluştu" });  //Error middleware'e yönlendirdik
         } else {
             console.log("başarılı");
         }
@@ -99,13 +100,15 @@ server.get('/download', (req, res, next) => {
 
 
 // error middleware
-server.use((err,req,res,next)=>{
+server.use((err, req, res, next) => {
     console.log(err);
-    res.status(500).json({message: err.message || "hata aldık"})
+    res.status(500).json({ message: err.message || "hata aldık" })
 })
 
 
 //2- Server setup
-server.listen(9000, ()=>{
-    console.log("listening on port 9000")
+PORT = process.env.PORT || 9000
+server.listen(PORT, () => {
+    console.log(`listening on port ${PORT}`);
 })
+ 
